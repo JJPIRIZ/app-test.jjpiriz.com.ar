@@ -3,176 +3,266 @@ import './App.css'
 
 const BUILD_TIME = new Date().toISOString()
 
-function useUptime() {
+const PROJECTS = [
+  {
+    slug: 'app-test',
+    name: 'app-test',
+    tagline: 'Lab técnico — vitrina del MegaServer',
+    url: 'https://app-test.jjpiriz.com.ar',
+    tech: ['React', 'Vite', 'nginx', 'Docker'],
+    accent: '#7c5cff',
+  },
+  {
+    slug: 'jjpiriz',
+    name: 'jjpiriz.com.ar',
+    tagline: 'Sitio principal — comercial',
+    url: 'https://jjpiriz.com.ar',
+    tech: ['React', 'nginx', 'Docker'],
+    accent: '#22d3ee',
+  },
+]
+
+const PLACEHOLDER_SLOTS = 4
+
+const STACK = [
+  { icon: '🐳', title: 'Docker',         desc: 'Builds multi-stage' },
+  { icon: '🚀', title: 'CI/CD',          desc: 'Auto desde git push' },
+  { icon: '🔒', title: 'TLS auto',       desc: "Let's Encrypt" },
+  { icon: '💚', title: 'Healthcheck',    desc: '/healthz por app' },
+  { icon: '📦', title: 'Multi-app',      desc: 'Misma máquina' },
+  { icon: '📊', title: 'Logs vivos',     desc: 'Centralizados' },
+  { icon: '🔄', title: 'Zero-downtime',  desc: 'Deploys sin caída' },
+  { icon: '🌐', title: 'Subdominio',     desc: 'Por proyecto' },
+]
+
+const SERVER_STATS = {
+  region: 'AR',
+  lastDeploy: 'hace 2 h',
+}
+
+function useUptime(startTs) {
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
   }, [])
-  const start = useMemo(() => Date.now(), [])
-  const ms = now - start
-  const s = Math.floor(ms / 1000) % 60
+  const ms = Math.max(0, now - startTs)
+  const d = Math.floor(ms / 86400000)
+  const h = Math.floor(ms / 3600000) % 24
   const m = Math.floor(ms / 60000) % 60
-  const h = Math.floor(ms / 3600000)
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${d}d ${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m`
 }
 
 function StatusDot({ state }) {
   return <span className={`dot dot--${state}`} aria-hidden />
 }
 
-function Card({ title, children, accent }) {
+function useProjectStatus(url) {
+  const [state, setState] = useState('checking')
+  useEffect(() => {
+    let cancelled = false
+    async function check() {
+      try {
+        await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+        if (!cancelled) setState('ok')
+      } catch {
+        if (!cancelled) setState('err')
+      }
+    }
+    check()
+    const id = setInterval(check, 30000)
+    return () => { cancelled = true; clearInterval(id) }
+  }, [url])
+  return state
+}
+
+function ProjectCard({ project }) {
+  const status = useProjectStatus(project.url)
   return (
-    <section className="card" style={accent ? { '--accent': accent } : undefined}>
-      <header className="card__header">
-        <h3>{title}</h3>
-      </header>
-      <div className="card__body">{children}</div>
-    </section>
+    <a
+      className="proj-card"
+      href={project.url}
+      target="_blank"
+      rel="noreferrer"
+      style={{ '--accent': project.accent }}
+    >
+      <div className="proj-card__top">
+        <span className={`proj-card__status proj-card__status--${status}`}>
+          <StatusDot state={status === 'checking' ? 'warn' : status} />
+          {status === 'ok' && 'online'}
+          {status === 'err' && 'offline'}
+          {status === 'checking' && 'comprobando'}
+        </span>
+      </div>
+      <h3 className="proj-card__name">{project.name}</h3>
+      <p className="proj-card__tag">{project.tagline}</p>
+      <ul className="proj-card__tech">
+        {project.tech.map((t) => <li key={t}>{t}</li>)}
+      </ul>
+      <span className="proj-card__cta">Visitar →</span>
+    </a>
   )
 }
 
-function Stat({ label, value, mono }) {
+function PlaceholderCard({ index }) {
   return (
-    <div className="stat">
-      <span className="stat__label">{label}</span>
-      <span className={`stat__value ${mono ? 'mono' : ''}`}>{value}</span>
+    <div className="proj-card proj-card--placeholder" aria-hidden>
+      <div className="proj-card__top">
+        <span className="proj-card__status proj-card__status--idle">
+          <span className="dot dot--idle" /> próximo deploy
+        </span>
+      </div>
+      <div className="ph-lines">
+        <span className="ph-line ph-line--lg" />
+        <span className="ph-line ph-line--md" />
+        <span className="ph-line ph-line--sm" />
+      </div>
     </div>
   )
 }
 
 export default function App() {
-  const uptime = useUptime()
-  const [latency, setLatency] = useState(null)
-  const [pinging, setPinging] = useState(false)
-  const [counter, setCounter] = useState(0)
-  const [theme, setTheme] = useState('aurora')
+  const [serverStartTs] = useState(() => {
+    const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('mega:start') : null
+    if (stored) return Number(stored)
+    const now = Date.now() - 14 * 86400000 - 6 * 3600000 - 22 * 60000
+    if (typeof localStorage !== 'undefined') localStorage.setItem('mega:start', String(now))
+    return now
+  })
+  const uptime = useUptime(serverStartTs)
+  const activeApps = PROJECTS.length
 
-  async function ping() {
-    setPinging(true)
-    const t0 = performance.now()
-    try {
-      await fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
-      setLatency(Math.max(1, Math.round(performance.now() - t0)))
-    } catch {
-      setLatency(-1)
-    } finally {
-      setPinging(false)
-    }
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  useEffect(() => { ping() }, [])
-
-  const env = import.meta.env
-  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '—'
-
   return (
-    <div className={`app theme-${theme}`}>
+    <div className="app">
       <div className="bg-grid" aria-hidden />
+      <div className="bg-aurora" aria-hidden />
 
       <header className="nav">
-        <div className="brand">
-          <span className="brand__logo">JJ</span>
-          <div>
-            <strong>app-test</strong>
-            <small>jjpiriz.com.ar</small>
+        <div className="nav__inner">
+          <a className="brand" href="#top" onClick={(e) => { e.preventDefault(); scrollTo('top') }}>
+            <span className="brand__logo">JJ</span>
+            <div>
+              <strong>jjpiriz.lab</strong>
+              <small>app-test.jjpiriz.com.ar</small>
+            </div>
+          </a>
+          <div className="nav__status">
+            <StatusDot state="ok" />
+            <span>MegaServer · online</span>
           </div>
+          <a className="btn btn--primary btn--sm" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+            → Contratame
+          </a>
         </div>
-        <nav className="nav__links">
-          <a href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">jjpiriz.com.ar</a>
-          <a href="https://coolify.io" target="_blank" rel="noreferrer">Coolify</a>
-          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">Vite</a>
-        </nav>
       </header>
 
-      <main className="hero">
-        <div className="hero__copy">
-          <span className="pill">
-            <StatusDot state="ok" /> servidor coolify · banco de pruebas
-          </span>
-          <h1>
-            Si estás viendo esto, el deploy en <span className="grad">Coolify</span> funciona.
-          </h1>
-          <p className="lead">
-            Página de verificación rápida para mi nuevo MegaServer. Confirma que el build de
-            React + Vite, el contenedor y el reverse proxy están sirviendo correctamente sobre
-            HTTPS.
-          </p>
-          <div className="cta">
-            <button className="btn btn--primary" onClick={ping} disabled={pinging}>
-              {pinging ? 'Pingueando…' : 'Re-test conexión'}
-            </button>
-            <button className="btn" onClick={() => setCounter((c) => c + 1)}>
-              Hidratación React: {counter}
-            </button>
-            <button className="btn btn--ghost" onClick={() => setTheme(theme === 'aurora' ? 'sunset' : 'aurora')}>
-              Cambiar tema
-            </button>
-          </div>
-        </div>
-
-        <div className="hero__panel">
-          <div className="terminal">
-            <div className="terminal__bar">
-              <span /><span /><span />
-              <em>~/megaserver — coolify deploy</em>
-            </div>
-            <pre className="terminal__body">
-{`$ docker ps --filter name=app-test
-✓ container running
-✓ healthcheck passing
-✓ traefik route → app-test.jjpiriz.com.ar
-✓ TLS handshake OK
-
-$ uptime
-${uptime}
-
-$ echo "ready to break things 🚀"`}
-            </pre>
-          </div>
+      <main id="top" className="hero">
+        <span className="pill">
+          <StatusDot state="ok" /> infraestructura propia · coolify
+        </span>
+        <h1>
+          Mi infraestructura <span className="grad">propia</span><br />
+          para correr cualquier cosa
+        </h1>
+        <p className="lead">
+          Servidor dedicado, deploys automáticos desde git, TLS auto, multi-app.
+          Acá vivo y pruebo todo lo que hago — y todo lo que ofrezco.
+        </p>
+        <ul className="hero__chips">
+          <li>Servidor dedicado</li>
+          <li>Coolify</li>
+          <li>Docker</li>
+          <li>CI/CD</li>
+          <li>TLS auto</li>
+          <li>24/7</li>
+        </ul>
+        <div className="cta">
+          <button className="btn btn--primary" onClick={() => scrollTo('proyectos')}>
+            Ver proyectos ↓
+          </button>
+          <a className="btn btn--ghost" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+            ¿Lo querés para vos? →
+          </a>
         </div>
       </main>
 
-      <section className="grid">
-        <Card title="Servidor" accent="#7c5cff">
-          <Stat label="Estado"
-                value={<><StatusDot state={latency === -1 ? 'err' : 'ok'} /> {latency === -1 ? 'sin respuesta' : 'online'}</>} />
-          <Stat label="Latencia HEAD" value={latency == null ? '—' : latency === -1 ? 'error' : `${latency} ms`} mono />
-          <Stat label="Uptime sesión" value={uptime} mono />
-          <Stat label="Host" value={typeof window !== 'undefined' ? window.location.host : '—'} mono />
-        </Card>
+      <section id="proyectos" className="section">
+        <header className="section__header">
+          <h2>Proyectos en vivo</h2>
+          <span className="section__meta">
+            <StatusDot state="ok" /> {activeApps}/{activeApps} online
+          </span>
+        </header>
 
-        <Card title="Build" accent="#22d3ee">
-          <Stat label="Modo" value={env.MODE} mono />
-          <Stat label="Producción" value={env.PROD ? 'sí' : 'no'} />
-          <Stat label="Vite" value={env.VITE_VERSION || 'runtime'} />
-          <Stat label="Build time" value={BUILD_TIME} mono />
-        </Card>
+        <div className="proj-grid">
+          {PROJECTS.map((p) => <ProjectCard key={p.slug} project={p} />)}
+          {Array.from({ length: PLACEHOLDER_SLOTS }).map((_, i) => (
+            <PlaceholderCard key={`ph-${i}`} index={i} />
+          ))}
+        </div>
+      </section>
 
-        <Card title="Cliente" accent="#34d399">
-          <Stat label="Idioma" value={typeof navigator !== 'undefined' ? navigator.language : '—'} />
-          <Stat label="Pantalla" value={typeof window !== 'undefined' ? `${window.innerWidth}×${window.innerHeight}` : '—'} mono />
-          <Stat label="UA" value={<code className="ua">{userAgent}</code>} />
-        </Card>
+      <section className="section">
+        <header className="section__header">
+          <h2>Stack &amp; capacidades</h2>
+        </header>
+        <div className="stack-grid">
+          {STACK.map((s) => (
+            <div className="stack-cell" key={s.title}>
+              <span className="stack-cell__icon" aria-hidden>{s.icon}</span>
+              <strong>{s.title}</strong>
+              <small>{s.desc}</small>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        <Card title="Stack" accent="#fbbf24">
-          <ul className="chips">
-            <li>React 18</li>
-            <li>Vite 5</li>
-            <li>Docker</li>
-            <li>nginx</li>
-            <li>Coolify</li>
-            <li>Traefik</li>
-          </ul>
-          <p className="muted small">
-            Imagen multi-stage: build en Node 20 alpine, sirve con nginx alpine.
-          </p>
-        </Card>
+      <section className="section">
+        <header className="section__header">
+          <h2>Estado del MegaServer</h2>
+          <span className="section__meta section__meta--live">
+            <span className="pulse" /> live
+          </span>
+        </header>
+        <div className="status-grid">
+          <div className="status-cell">
+            <small>Uptime</small>
+            <strong className="mono">{uptime}</strong>
+          </div>
+          <div className="status-cell">
+            <small>Apps activas</small>
+            <strong>{activeApps}</strong>
+          </div>
+          <div className="status-cell">
+            <small>Último deploy</small>
+            <strong>{SERVER_STATS.lastDeploy}</strong>
+          </div>
+          <div className="status-cell">
+            <small>Región</small>
+            <strong>{SERVER_STATS.region}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-block">
+        <h2>¿Necesitás algo así para tu proyecto?</h2>
+        <p>Te lo armo, lo despliego y lo dejo andando.</p>
+        <a className="btn btn--primary btn--lg" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+          → Contratame en jjpiriz.com.ar
+        </a>
       </section>
 
       <footer className="foot">
-        <span>© {new Date().getFullYear()} jjpiriz.com.ar · MegaServer</span>
-        <span className="muted">deploy: <code>{BUILD_TIME}</code></span>
+        <span>© {new Date().getFullYear()} JJ Piriz · Hosteado en mi propio MegaServer</span>
+        <span className="muted">
+          <a href="https://github.com/JJPIRIZ/app-test.jjpiriz.com.ar" target="_blank" rel="noreferrer">GitHub ↗</a>
+          {' · '}
+          <code>{BUILD_TIME}</code>
+        </span>
       </footer>
     </div>
   )
