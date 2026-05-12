@@ -36,7 +36,7 @@ const STACK = [
   { icon: '🌐', title: 'Subdominio',     desc: 'Por proyecto' },
 ]
 
-const STATUS_PAGE_URL = 'http://coolify.jjpiriz.com.ar:3001/status/megaserver'
+const STATUS_PAGE_URL = 'https://status.jjpiriz.com.ar/status/megaserver'
 
 const SERVER_STATS = {
   region: 'AR',
