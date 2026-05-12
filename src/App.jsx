@@ -30,10 +30,13 @@ const STACK = [
   { icon: '🔒', title: 'TLS auto',       desc: "Let's Encrypt" },
   { icon: '💚', title: 'Healthcheck',    desc: '/healthz por app' },
   { icon: '📦', title: 'Multi-app',      desc: 'Misma máquina' },
-  { icon: '📊', title: 'Logs vivos',     desc: 'Centralizados' },
+  { icon: '📡', title: 'Uptime Kuma',    desc: 'Monitoreo de servicios' },
+  { icon: '📜', title: 'Dozzle',         desc: 'Logs en vivo' },
   { icon: '🔄', title: 'Zero-downtime',  desc: 'Deploys sin caída' },
   { icon: '🌐', title: 'Subdominio',     desc: 'Por proyecto' },
 ]
+
+const STATUS_PAGE_URL = 'http://coolify.jjpiriz.com.ar:3001/status/megaserver'
 
 const SERVER_STATS = {
   region: 'AR',
@@ -245,6 +248,11 @@ export default function App() {
             <small>Región</small>
             <strong>{SERVER_STATS.region}</strong>
           </div>
+        </div>
+        <div className="status-cta">
+          <a className="btn btn--ghost btn--sm" href={STATUS_PAGE_URL} target="_blank" rel="noreferrer">
+            Ver status page completa (Uptime Kuma) →
+          </a>
         </div>
       </section>
 

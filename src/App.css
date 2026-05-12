@@ -372,6 +372,12 @@
 .status-cell strong { font-size: 18px; }
 .status-cell .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 16px; }
 
+.status-cta {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
 .pulse {
   width: 8px;
   height: 8px;
