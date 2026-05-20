@@ -3,26 +3,24 @@ import './App.css'
 
 const BUILD_TIME = new Date().toISOString()
 
-const PROJECTS = [
-  {
-    slug: 'app-test',
-    name: 'app-test',
-    tagline: 'Lab técnico — vitrina del MegaServer',
-    url: 'https://app-test.jjpiriz.com.ar',
-    tech: ['React', 'Vite', 'nginx', 'Docker'],
-    accent: '#7c5cff',
-  },
-  {
-    slug: 'jjpiriz',
-    name: 'jjpiriz.com.ar',
-    tagline: 'Sitio principal — comercial',
-    url: 'https://jjpiriz.com.ar',
-    tech: ['React', 'nginx', 'Docker'],
-    accent: '#22d3ee',
-  },
-]
-
+// Proyectos: se generan en build-time desde la API de Coolify
+// (scripts/fetch-projects.mjs → public/projects.json). Fallback si falla.
 const PLACEHOLDER_SLOTS = 4
+
+function useProjects() {
+  const [projects, setProjects] = useState(null)
+  const [source, setSource] = useState(null)
+  useEffect(() => {
+    fetch('/projects.json', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((data) => {
+        setProjects(Array.isArray(data?.projects) ? data.projects : [])
+        setSource(data?.source ?? null)
+      })
+      .catch(() => setProjects([]))
+  }, [])
+  return { projects, source }
+}
 
 const STACK = [
   { icon: '🐳', title: 'Docker',         desc: 'Builds multi-stage' },
@@ -133,7 +131,13 @@ export default function App() {
     return now
   })
   const uptime = useUptime(serverStartTs)
-  const activeApps = PROJECTS.length
+  const { projects, source } = useProjects()
+  const loadingProjects = projects === null
+  const list = projects ?? []
+  const activeApps = list.length
+  const placeholderCount = loadingProjects
+    ? PLACEHOLDER_SLOTS
+    : Math.max(0, PLACEHOLDER_SLOTS - Math.max(0, activeApps - 2))
 
   function scrollTo(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -197,13 +201,16 @@ export default function App() {
         <header className="section__header">
           <h2>Proyectos en vivo</h2>
           <span className="section__meta">
-            <StatusDot state="ok" /> {activeApps}/{activeApps} online
+            <StatusDot state="ok" /> {loadingProjects ? 'cargando…' : `${activeApps}/${activeApps} online`}
+            {source === 'coolify' && !loadingProjects && (
+              <span className="section__meta-pill" title="Sincronizado desde Coolify en cada build">· coolify</span>
+            )}
           </span>
         </header>
 
         <div className="proj-grid">
-          {PROJECTS.map((p) => <ProjectCard key={p.slug} project={p} />)}
-          {Array.from({ length: PLACEHOLDER_SLOTS }).map((_, i) => (
+          {list.map((p) => <ProjectCard key={p.slug} project={p} />)}
+          {Array.from({ length: placeholderCount }).map((_, i) => (
             <PlaceholderCard key={`ph-${i}`} index={i} />
           ))}
         </div>

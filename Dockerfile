@@ -2,6 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
+# Coolify API (build-time only). Si no se setean, el script usa projects.fallback.json.
+ARG COOLIFY_API_URL=""
+ARG COOLIFY_API_TOKEN=""
+ENV COOLIFY_API_URL=$COOLIFY_API_URL
+ENV COOLIFY_API_TOKEN=$COOLIFY_API_TOKEN
+
 COPY package*.json ./
 RUN npm install --no-audit --no-fund
 

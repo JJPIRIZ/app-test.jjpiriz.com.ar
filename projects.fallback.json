@@ -1,0 +1,20 @@
+{
+  "projects": [
+    {
+      "slug": "app-test",
+      "name": "app-test",
+      "tagline": "Lab técnico — vitrina del MegaServer",
+      "url": "https://app-test.jjpiriz.com.ar",
+      "tech": ["React", "Vite", "nginx", "Docker"],
+      "accent": "#7c5cff"
+    },
+    {
+      "slug": "jjpiriz",
+      "name": "jjpiriz.com.ar",
+      "tagline": "Sitio principal — comercial",
+      "url": "https://jjpiriz.com.ar",
+      "tech": ["Astro", "React", "nginx", "Docker"],
+      "accent": "#22d3ee"
+    }
+  ]
+}

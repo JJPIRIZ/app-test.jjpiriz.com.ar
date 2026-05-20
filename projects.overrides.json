@@ -1,0 +1,16 @@
+{
+  "_README": "Overrides por slug (derivado del 'name' de la app en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. Mirá los logs del build (en Coolify) para ver los slugs detectados y armar tus overrides.",
+
+  "app-test-jjpiriz-com-ar": {
+    "name": "app-test",
+    "tagline": "Lab técnico — vitrina del MegaServer",
+    "tech": ["React", "Vite", "nginx", "Docker"],
+    "accent": "#7c5cff"
+  },
+  "jjpiriz-com-ar": {
+    "name": "jjpiriz.com.ar",
+    "tagline": "Sitio principal — comercial",
+    "tech": ["Astro", "React", "nginx", "Docker"],
+    "accent": "#22d3ee"
+  }
+}
