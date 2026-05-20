@@ -172,8 +172,8 @@ export default function App() {
           <StatusDot state="ok" /> infraestructura propia · coolify
         </span>
         <h1>
-          Mi infraestructura <span className="grad">propia</span><br />
-          para correr cualquier cosa
+          Infraestructura <span className="grad">dedicada</span>,<br />
+          lista para producción
         </h1>
         <p className="lead">
           Servidor dedicado, deploys automáticos desde git, TLS auto, multi-app.
