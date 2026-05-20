@@ -1,5 +1,5 @@
 {
-  "_README": "Overrides por slug (derivado del 'name' de la app en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. Mirá los logs del build (en Coolify) para ver los slugs detectados y armar tus overrides.",
+  "_README": "Overrides por slug (derivado del 'name' de la app en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. Si una app no tiene override, el script usa defaults (color rotativo, sin tagline ni tech).",
 
   "app-test-jjpiriz-com-ar": {
     "name": "app-test",
@@ -10,7 +10,25 @@
   "jjpiriz-com-ar": {
     "name": "jjpiriz.com.ar",
     "tagline": "Sitio principal — comercial",
-    "tech": ["Astro", "React", "nginx", "Docker"],
+    "tech": ["Astro", "React", "Tailwind", "nginx"],
     "accent": "#22d3ee"
+  },
+  "leclubapidahua": {
+    "name": "LeClub · API Dahua",
+    "tagline": "API para control de cámaras Dahua del Club de Padel",
+    "tech": ["Node.js", "Dahua SDK", "Docker"],
+    "accent": "#34d399"
+  },
+  "uptime-kuma": {
+    "name": "Status del MegaServer",
+    "tagline": "Monitoreo 24/7 de servicios y uptime",
+    "tech": ["Uptime Kuma", "Docker"],
+    "accent": "#fbbf24"
+  },
+  "fmestilo-jjpiriz-com-ar": {
+    "name": "FM Estilo",
+    "tagline": "Sitio web del cliente",
+    "tech": ["nginx", "Docker"],
+    "accent": "#f472b6"
   }
 }
