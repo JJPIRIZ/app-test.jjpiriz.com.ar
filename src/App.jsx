@@ -177,7 +177,7 @@ export default function App() {
         </h1>
         <p className="lead">
           Servidor dedicado, deploys automáticos desde git, TLS auto, multi-app.
-          Acá vivo y pruebo todo lo que hago — y todo lo que ofrezco.
+          Probado en lo que hago, listo para lo que ofrezco.
         </p>
         <ul className="hero__chips">
           <li>Servidor dedicado</li>
