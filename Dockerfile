@@ -8,6 +8,12 @@ ARG COOLIFY_API_TOKEN=""
 ENV COOLIFY_API_URL=$COOLIFY_API_URL
 ENV COOLIFY_API_TOKEN=$COOLIFY_API_TOKEN
 
+# Analítica propia (Umami, build-time). Si no se setean, no se inyecta el script.
+ARG VITE_UMAMI_URL=""
+ARG VITE_UMAMI_WEBSITE_ID=""
+ENV VITE_UMAMI_URL=$VITE_UMAMI_URL
+ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID
+
 COPY package*.json ./
 RUN npm install --no-audit --no-fund
 
