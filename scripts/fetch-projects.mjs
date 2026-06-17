@@ -4,6 +4,12 @@
 // Si falla (sin env vars, API caída, etc.), usa projects.fallback.json.
 // Nunca hace fallar el build — el lab siempre arranca con algo.
 //
+// Trae DOS endpoints de Coolify:
+//   /api/v1/applications  → se muestran todas las que tengan dominio público.
+//   /api/v1/services      → OPT-IN: sólo se muestran las que en
+//                            projects.overrides.json tengan "show": true.
+//   (así herramientas internas como Umami/Dozzle quedan ocultas por defecto)
+//
 // Env vars esperadas (Coolify "Build Variables" con "Is Build Time" = on):
 //   COOLIFY_API_URL    — ej: https://coolify.jjpiriz.com.ar
 //   COOLIFY_API_TOKEN  — bearer token de solo lectura
@@ -39,11 +45,28 @@ function slugify(s) {
     .replace(/^-+|-+$/g, '')
 }
 
-function pickFqdn(app) {
-  const raw = app?.fqdn ?? app?.fqdns ?? ''
+function pickFqdn(item) {
+  const raw = item?.fqdn ?? item?.fqdns ?? ''
   const first = String(raw).split(',').map((s) => s.trim()).find(Boolean)
   if (!first) return null
   return /^https?:\/\//i.test(first) ? first : `https://${first}`
+}
+
+async function fetchJson(url) {
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      console.error(`[fetch-projects] ${url} respondió ${res.status} ${res.statusText}`)
+      return null
+    }
+    const data = await res.json()
+    return Array.isArray(data) ? data : data?.data ?? data?.applications ?? null
+  } catch (err) {
+    console.error(`[fetch-projects] error de red en ${url}:`, err?.message ?? err)
+    return null
+  }
 }
 
 async function fetchFromCoolify() {
@@ -51,55 +74,57 @@ async function fetchFromCoolify() {
     console.warn('[fetch-projects] COOLIFY_API_URL o COOLIFY_API_TOKEN ausente — usando fallback')
     return null
   }
-  const url = `${API_URL}/api/v1/applications`
-  try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
-    })
-    if (!res.ok) {
-      console.error(`[fetch-projects] Coolify respondió ${res.status} ${res.statusText}`)
-      return null
-    }
-    const data = await res.json()
-    return Array.isArray(data) ? data : data?.data ?? data?.applications ?? null
-  } catch (err) {
-    console.error('[fetch-projects] error de red:', err?.message ?? err)
-    return null
+  const [apps, services] = await Promise.all([
+    fetchJson(`${API_URL}/api/v1/applications`),
+    fetchJson(`${API_URL}/api/v1/services`),
+  ])
+  if (apps === null && services === null) return null // API inaccesible → fallback
+  return {
+    apps: Array.isArray(apps) ? apps : [],
+    services: Array.isArray(services) ? services : [],
   }
 }
 
-function transform(apps, overrides) {
-  return apps
-    .map((app, i) => {
-      const rawName = app.name ?? app.uuid ?? `app-${i}`
-      const slug = slugify(rawName)
-      const url = pickFqdn(app)
-      if (!url) return null // sin dominio público, no la mostramos
-      const ov = overrides[slug] ?? {}
-      return {
-        slug,
-        name: ov.name ?? rawName,
-        tagline: ov.tagline ?? app.description ?? '',
-        url,
-        tech: Array.isArray(ov.tech) ? ov.tech : [],
-        accent: ov.accent ?? ACCENTS[i % ACCENTS.length],
-      }
-    })
-    .filter(Boolean)
+// kind: 'application' | 'service'. Los services son opt-in (override.show === true).
+function buildProject(item, kind, overrides) {
+  const rawName = item.name ?? item.uuid ?? kind
+  const slug = slugify(rawName)
+  const ov = overrides[slug] ?? {}
+  if (kind === 'service' && ov.show !== true) return null // service no curado → oculto
+  const url = ov.url ?? pickFqdn(item)
+  if (!url) return null // sin dominio público (y sin url en override), no la mostramos
+  return {
+    slug,
+    name: ov.name ?? rawName,
+    tagline: ov.tagline ?? item.description ?? '',
+    url,
+    tech: Array.isArray(ov.tech) ? ov.tech : [],
+    accent: ov.accent ?? null, // se asigna abajo si no hay override
+    kind,
+  }
 }
 
 async function main() {
-  const apps = await fetchFromCoolify()
+  const data = await fetchFromCoolify()
   let projects
   let source
 
-  if (Array.isArray(apps) && apps.length > 0) {
+  if (data && (data.apps.length > 0 || data.services.length > 0)) {
     const overrides = await readJson(OVERRIDES, {})
-    projects = transform(apps, overrides)
+    const raw = [
+      ...data.apps.map((item) => ({ item, kind: 'application' })),
+      ...data.services.map((item) => ({ item, kind: 'service' })),
+    ]
+    projects = raw
+      .map(({ item, kind }) => buildProject(item, kind, overrides))
+      .filter(Boolean)
+      .map((p, i) => ({ ...p, accent: p.accent ?? ACCENTS[i % ACCENTS.length] }))
     source = 'coolify'
-    console.log(`[fetch-projects] ${projects.length} apps desde Coolify`)
+    const apps = projects.filter((p) => p.kind === 'application').length
+    const svcs = projects.filter((p) => p.kind === 'service').length
+    console.log(`[fetch-projects] ${projects.length} proyectos desde Coolify (${apps} apps, ${svcs} services curados)`)
     if (projects.length > 0) {
-      console.log('[fetch-projects] slugs detectados:', projects.map((p) => p.slug).join(', '))
+      console.log('[fetch-projects] slugs detectados:', projects.map((p) => `${p.slug}(${p.kind})`).join(', '))
     }
   } else {
     const fallback = await readJson(FALLBACK, { projects: [] })
