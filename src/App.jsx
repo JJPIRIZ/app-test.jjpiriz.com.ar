@@ -85,6 +85,8 @@ function ProjectCard({ project }) {
       href={project.url}
       target="_blank"
       rel="noreferrer"
+      data-umami-event="lab-visit-project"
+      data-umami-event-slug={project.slug}
       style={{ '--accent': project.accent }}
     >
       <div className="proj-card__top">
@@ -161,7 +163,7 @@ export default function App() {
             <StatusDot state="ok" />
             <span>MegaServer · online</span>
           </div>
-          <a className="btn btn--primary btn--sm" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+          <a className="btn btn--primary btn--sm" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer" data-umami-event="lab-contratame-nav">
             → Contratame
           </a>
         </div>
@@ -191,7 +193,7 @@ export default function App() {
           <button className="btn btn--primary" onClick={() => scrollTo('proyectos')}>
             Ver proyectos ↓
           </button>
-          <a className="btn btn--ghost" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+          <a className="btn btn--ghost" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer" data-umami-event="lab-contratame-hero">
             ¿Lo querés para vos? →
           </a>
         </div>
@@ -257,7 +259,7 @@ export default function App() {
           </div>
         </div>
         <div className="status-cta">
-          <a className="btn btn--ghost btn--sm" href={STATUS_PAGE_URL} target="_blank" rel="noreferrer">
+          <a className="btn btn--ghost btn--sm" href={STATUS_PAGE_URL} target="_blank" rel="noreferrer" data-umami-event="lab-status-page">
             Ver status page completa (Uptime Kuma) →
           </a>
         </div>
@@ -266,7 +268,7 @@ export default function App() {
       <section className="cta-block">
         <h2>¿Necesitás algo así para tu proyecto?</h2>
         <p>Te lo armo, lo despliego y lo dejo andando.</p>
-        <a className="btn btn--primary btn--lg" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer">
+        <a className="btn btn--primary btn--lg" href="https://jjpiriz.com.ar" target="_blank" rel="noreferrer" data-umami-event="lab-contratame-final">
           → Contratame en jjpiriz.com.ar
         </a>
       </section>
