@@ -154,7 +154,9 @@ export default function App() {
   const { projects, source } = useProjects()
   const loadingProjects = projects === null
   const list = projects ?? []
-  const activeApps = list.length
+  const appsList = list.filter((p) => p.kind !== 'service')
+  const servicesList = list.filter((p) => p.kind === 'service')
+  const activeApps = appsList.length
   const placeholderCount = loadingProjects
     ? PLACEHOLDER_SLOTS
     : Math.max(0, PLACEHOLDER_SLOTS - Math.max(0, activeApps - 2))
@@ -229,12 +231,26 @@ export default function App() {
         </header>
 
         <div className="proj-grid">
-          {list.map((p) => <ProjectCard key={p.slug} project={p} />)}
+          {appsList.map((p) => <ProjectCard key={p.slug} project={p} />)}
           {Array.from({ length: placeholderCount }).map((_, i) => (
             <PlaceholderCard key={`ph-${i}`} index={i} />
           ))}
         </div>
       </section>
+
+      {servicesList.length > 0 && (
+        <section id="servicios" className="section">
+          <header className="section__header">
+            <h2>Servicios corriendo</h2>
+            <span className="section__meta">
+              <StatusDot state="ok" /> {servicesList.length} {servicesList.length === 1 ? 'servicio' : 'servicios'} en el MegaServer
+            </span>
+          </header>
+          <div className="proj-grid">
+            {servicesList.map((p) => <ProjectCard key={p.slug} project={p} />)}
+          </div>
+        </section>
+      )}
 
       <section className="section">
         <header className="section__header">
