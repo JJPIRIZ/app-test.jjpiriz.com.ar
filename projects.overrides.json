@@ -1,5 +1,5 @@
 {
-  "_README": "Overrides por slug (derivado del 'name' en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. APPLICATIONS: se muestran todas las que tengan dominio público. SERVICES: son opt-in → sólo aparecen si acá tienen \"show\": true (así Umami/Dozzle quedan ocultos). Para un service podés fijar la URL pública con \"url\": \"https://...\" si la API no la expone. Si no hay override, se usan defaults (color rotativo, sin tagline ni tech).",
+  "_README": "Overrides por slug (derivado del 'name' en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. APPLICATIONS: se muestran todas las que tengan dominio público. SERVICES: son opt-in → sólo aparecen si acá tienen \"show\": true (así no se expone ninguna herramienta interna sin querer). Usá \"link\": false para mostrarlos como card de sólo exhibición (online, no clickeable). Para un service podés fijar la URL pública con \"url\": \"https://...\" si la API no la expone. Si no hay override, se usan defaults (color rotativo, sin tagline ni tech).",
 
   "app-test-jjpiriz-com-ar": {
     "name": "app-test",
@@ -39,5 +39,23 @@
     "tagline": "Servidor de radio online / streaming de audio",
     "tech": ["AzuraCast", "Docker"],
     "accent": "#fb923c"
+  },
+  "umami": {
+    "show": true,
+    "link": false,
+    "url": "https://analytics.jjpiriz.com.ar",
+    "name": "Umami",
+    "tagline": "Analítica web propia, sin cookies",
+    "tech": ["Umami", "PostgreSQL", "Docker"],
+    "accent": "#a78bfa"
+  },
+  "dozzle": {
+    "show": true,
+    "link": false,
+    "url": "https://logs.jjpiriz.com.ar",
+    "name": "Dozzle",
+    "tagline": "Visor de logs de contenedores en vivo",
+    "tech": ["Dozzle", "Docker"],
+    "accent": "#5eead4"
   }
 }
