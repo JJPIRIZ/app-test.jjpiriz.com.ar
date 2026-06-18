@@ -298,6 +298,17 @@
   align-self: flex-start;
 }
 
+.proj-card--static { cursor: default; }
+.proj-card--static:hover {
+  transform: none;
+  border-color: var(--line);
+  background: rgba(19, 26, 51, 0.5);
+}
+.proj-card__cta--static {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .proj-card--placeholder {
   background: rgba(19, 26, 51, 0.25);
   border-style: dashed;

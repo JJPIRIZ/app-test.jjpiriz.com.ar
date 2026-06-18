@@ -91,16 +91,18 @@ function buildProject(item, kind, overrides) {
   const slug = slugify(rawName)
   const ov = overrides[slug] ?? {}
   if (kind === 'service' && ov.show !== true) return null // service no curado → oculto
+  const link = ov.link !== false // por defecto la card es clickeable; "link": false = sólo exhibición
   const url = ov.url ?? pickFqdn(item)
-  if (!url) return null // sin dominio público (y sin url en override), no la mostramos
+  if (link && !url) return null // si es clickeable necesita destino público
   return {
     slug,
     name: ov.name ?? rawName,
     tagline: ov.tagline ?? item.description ?? '',
-    url,
+    url: url ?? null, // en cards sin link, sólo se usa para el estado "online"
     tech: Array.isArray(ov.tech) ? ov.tech : [],
     accent: ov.accent ?? null, // se asigna abajo si no hay override
     kind,
+    link,
   }
 }
 

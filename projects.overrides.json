@@ -30,5 +30,14 @@
     "tagline": "Sitio web del cliente",
     "tech": ["nginx", "Docker"],
     "accent": "#f472b6"
+  },
+  "azuracast": {
+    "show": true,
+    "link": false,
+    "url": "https://radios.jjpiriz.com.ar",
+    "name": "AzuraCast",
+    "tagline": "Servidor de radio online / streaming de audio",
+    "tech": ["AzuraCast", "Docker"],
+    "accent": "#fb923c"
   }
 }

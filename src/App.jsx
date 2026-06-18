@@ -61,6 +61,7 @@ function StatusDot({ state }) {
 function useProjectStatus(url) {
   const [state, setState] = useState('checking')
   useEffect(() => {
+    if (!url) { setState('ok'); return } // card de exhibición sin URL → se asume online
     let cancelled = false
     async function check() {
       try {
@@ -79,16 +80,9 @@ function useProjectStatus(url) {
 
 function ProjectCard({ project }) {
   const status = useProjectStatus(project.url)
-  return (
-    <a
-      className="proj-card"
-      href={project.url}
-      target="_blank"
-      rel="noreferrer"
-      data-umami-event="lab-visit-project"
-      data-umami-event-slug={project.slug}
-      style={{ '--accent': project.accent }}
-    >
+  const clickable = project.link !== false && Boolean(project.url)
+  const body = (
+    <>
       <div className="proj-card__top">
         <span className={`proj-card__status proj-card__status--${status}`}>
           <StatusDot state={status === 'checking' ? 'warn' : status} />
@@ -102,8 +96,32 @@ function ProjectCard({ project }) {
       <ul className="proj-card__tech">
         {project.tech.map((t) => <li key={t}>{t}</li>)}
       </ul>
-      <span className="proj-card__cta">Visitar →</span>
-    </a>
+      {clickable
+        ? <span className="proj-card__cta">Visitar →</span>
+        : <span className="proj-card__cta proj-card__cta--static">servicio activo</span>}
+    </>
+  )
+
+  if (clickable) {
+    return (
+      <a
+        className="proj-card"
+        href={project.url}
+        target="_blank"
+        rel="noreferrer"
+        data-umami-event="lab-visit-project"
+        data-umami-event-slug={project.slug}
+        style={{ '--accent': project.accent }}
+      >
+        {body}
+      </a>
+    )
+  }
+
+  return (
+    <div className="proj-card proj-card--static" style={{ '--accent': project.accent }}>
+      {body}
+    </div>
   )
 }
 
