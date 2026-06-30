@@ -31,6 +31,12 @@
     "tech": ["nginx", "Docker"],
     "accent": "#f472b6"
   },
+  "mega-comercial": {
+    "name": "MegaComercial",
+    "tagline": "Sistema de gestión comercial — ventas, stock y caja",
+    "tech": ["React", "Vite", "nginx", "Docker"],
+    "accent": "#2563eb"
+  },
   "azuracast": {
     "show": true,
     "link": false,
