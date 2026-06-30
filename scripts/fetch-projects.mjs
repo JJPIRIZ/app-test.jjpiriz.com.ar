@@ -20,7 +20,9 @@ import path from 'node:path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const OUT = path.join(ROOT, 'public', 'projects.json')
+// Por defecto escribe en public/ (build-time). En runtime, el hook de nginx
+// setea PROJECTS_OUT para escribir directo en la carpeta que sirve nginx.
+const OUT = process.env.PROJECTS_OUT || path.join(ROOT, 'public', 'projects.json')
 const FALLBACK = path.join(ROOT, 'projects.fallback.json')
 const OVERRIDES = path.join(ROOT, 'projects.overrides.json')
 

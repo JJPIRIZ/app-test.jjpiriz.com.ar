@@ -1,0 +1,4 @@
+# Los scripts de shell DEBEN ir con LF, si no el contenedor Linux no los ejecuta
+*.sh text eol=lf
+*.mjs text eol=lf
+Dockerfile text eol=lf

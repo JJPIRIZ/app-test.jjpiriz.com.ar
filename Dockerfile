@@ -22,8 +22,21 @@ RUN npm run build
 
 # --- serve ---
 FROM nginx:1.27-alpine AS serve
+
+# node (sin deps externas: el script usa sólo built-ins + fetch global) para
+# regenerar projects.json en cada arranque del contenedor.
+RUN apk add --no-cache nodejs
+
+WORKDIR /app
+COPY --from=build /app/scripts ./scripts
+COPY --from=build /app/projects.overrides.json ./projects.overrides.json
+COPY --from=build /app/projects.fallback.json ./projects.fallback.json
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Hook de arranque: regenera la grilla desde la API en cada deploy/restart.
+COPY --chmod=0755 scripts/refresh-projects.sh /docker-entrypoint.d/40-refresh-projects.sh
 
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
