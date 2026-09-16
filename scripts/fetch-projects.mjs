@@ -131,6 +131,16 @@ async function main() {
       console.log('[fetch-projects] slugs detectados:', projects.map((p) => `${p.slug}(${p.kind})`).join(', '))
     }
   } else {
+    // En runtime (hook de nginx, PROJECTS_OUT seteado) la API sin datos NO pisa la grilla que ya
+    // está servida: se mantiene la del build o la última buena. Antes un solo arranque con la API
+    // caída (o con el token vencido) dejaba el lab con los 2 proyectos del fallback.
+    if (process.env.PROJECTS_OUT) {
+      const actual = await readJson(OUT, null)
+      if (Array.isArray(actual?.projects) && actual.projects.length > 0) {
+        console.log(`[fetch-projects] API sin datos — se mantiene la grilla existente (${actual.projects.length} proyectos, source=${actual.source ?? '?'})`)
+        return
+      }
+    }
     const fallback = await readJson(FALLBACK, { projects: [] })
     projects = Array.isArray(fallback) ? fallback : fallback.projects ?? []
     source = 'fallback'
