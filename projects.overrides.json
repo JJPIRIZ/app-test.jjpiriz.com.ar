@@ -58,23 +58,23 @@
 
   "kuyum-control-main": {
     "hide": true,
-    "nota": "Panel interno de licencias y abonos de la plataforma: no va en una vitrina pública."
+    "nota": "Panel de administración: no va en la vitrina."
   },
   "kuyum-backend": {
     "hide": true,
-    "nota": "API del sistema: no tiene nada que mostrar y marca dónde golpear."
+    "nota": "API: no tiene nada que mostrar."
   },
   "sistema-vales": {
     "hide": true,
-    "nota": "Sistema interno de un cliente: no se publica."
+    "nota": "Sistema de uso interno: no se publica."
   },
   "sistema-vales-server": {
     "hide": true,
-    "nota": "API del sistema interno de un cliente."
+    "nota": "API de un sistema de uso interno."
   },
   "mandale-fruta-front": {
     "hide": true,
-    "nota": "Dominio viejo de la tienda; queda la card de mandale-fruta-tienda."
+    "nota": "Dominio anterior; queda la card nueva."
   },
 
   "azuracast": {
