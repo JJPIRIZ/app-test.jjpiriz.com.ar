@@ -1,5 +1,5 @@
 {
-  "_README": "Overrides por slug (derivado del 'name' en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. APPLICATIONS: se muestran todas las que tengan dominio público. SERVICES: son opt-in → sólo aparecen si acá tienen \"show\": true (así no se expone ninguna herramienta interna sin querer). Usá \"link\": false para mostrarlos como card de sólo exhibición (online, no clickeable). Para un service podés fijar la URL pública con \"url\": \"https://...\" si la API no la expone. Si no hay override, se usan defaults (color rotativo, sin tagline ni tech).",
+  "_README": "Overrides por slug (derivado del 'name' en Coolify). Lo que pongas acá pisa lo que viene de la API. Útil para sumar tagline/tech/accent que Coolify no conoce. APPLICATIONS: se muestran todas las que tengan dominio público, salvo las que tengan \"hide\": true. SERVICES: son opt-in → sólo aparecen si acá tienen \"show\": true (así no se expone ninguna herramienta interna sin querer). Usá \"hide\": true para sacar de la vitrina APIs, paneles internos y sistemas de clientes. Usá \"link\": false para mostrar la card como sólo exhibición (online, no clickeable). Para un service podés fijar la URL pública con \"url\": \"https://...\" si la API no la expone. Si no hay override, se usan defaults (color rotativo, sin tagline ni tech). Si en Coolify cambia el nombre de una app, cambia el slug: revisar acá o la card queda sin descripción.",
 
   "app-test-jjpiriz-com-ar": {
     "name": "app-test",
@@ -13,6 +13,36 @@
     "tech": ["Astro", "React", "Tailwind", "nginx"],
     "accent": "#22d3ee"
   },
+  "fm-estilo-main": {
+    "name": "FM Estilo 90.9",
+    "tagline": "La radio al aire por internet, con reproductor propio",
+    "tech": ["Astro", "AzuraCast", "nginx", "Docker"],
+    "accent": "#f472b6"
+  },
+  "loteria": {
+    "name": "Lotería",
+    "tagline": "Sorteos de bingo para proyectar, con cartones para imprimir",
+    "tech": ["JavaScript", "Node.js", "nginx", "Docker"],
+    "accent": "#38bdf8"
+  },
+  "kuyum-web": {
+    "name": "Kuyum",
+    "tagline": "Sitio comercial del sistema para comercios",
+    "tech": ["Astro", "Tailwind", "nginx", "Docker"],
+    "accent": "#2563eb"
+  },
+  "app-kuyum": {
+    "name": "Kuyum · sistema",
+    "tagline": "Mostrador, stock, caja y facturación electrónica",
+    "tech": ["React", "Vite", ".NET", "PostgreSQL"],
+    "accent": "#1d4ed8"
+  },
+  "mandale-fruta-tienda": {
+    "name": "MandaleFruta",
+    "tagline": "Tienda online de una verdulería, con Mercado Pago",
+    "tech": ["React", "Node.js", "PostgreSQL", "Mercado Pago"],
+    "accent": "#84cc16"
+  },
   "leclubapidahua": {
     "name": "LeClub · API Dahua",
     "tagline": "API para control de cámaras Dahua del Club de Padel",
@@ -25,18 +55,28 @@
     "tech": ["Uptime Kuma", "Docker"],
     "accent": "#fbbf24"
   },
-  "fmestilo-jjpiriz-com-ar": {
-    "name": "FM Estilo",
-    "tagline": "Sitio web del cliente",
-    "tech": ["nginx", "Docker"],
-    "accent": "#f472b6"
+
+  "kuyum-control-main": {
+    "hide": true,
+    "nota": "Panel interno de licencias y abonos de la plataforma: no va en una vitrina pública."
   },
-  "mega-comercial": {
-    "name": "MegaComercial",
-    "tagline": "Sistema de gestión comercial — ventas, stock y caja",
-    "tech": ["React", "Vite", "nginx", "Docker"],
-    "accent": "#2563eb"
+  "kuyum-backend": {
+    "hide": true,
+    "nota": "API del sistema: no tiene nada que mostrar y marca dónde golpear."
   },
+  "sistema-vales": {
+    "hide": true,
+    "nota": "Sistema interno de un cliente: no se publica."
+  },
+  "sistema-vales-server": {
+    "hide": true,
+    "nota": "API del sistema interno de un cliente."
+  },
+  "mandale-fruta-front": {
+    "hide": true,
+    "nota": "Dominio viejo de la tienda; queda la card de mandale-fruta-tienda."
+  },
+
   "azuracast": {
     "show": true,
     "link": false,

@@ -92,6 +92,7 @@ function buildProject(item, kind, overrides) {
   const rawName = item.name ?? item.uuid ?? kind
   const slug = slugify(rawName)
   const ov = overrides[slug] ?? {}
+  if (ov.hide === true) return null // "hide": true → fuera de la grilla (APIs, paneles internos, sistemas de clientes)
   if (kind === 'service' && ov.show !== true) return null // service no curado → oculto
   const link = ov.link !== false // por defecto la card es clickeable; "link": false = sólo exhibición
   const url = ov.url ?? pickFqdn(item)
